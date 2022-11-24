@@ -67,3 +67,8 @@ dataset*/
 # Old copies of files #
 #######################
 *.old
+
+#ignore these files
+/examples/toy/mass_plots
+setup.sh
+
