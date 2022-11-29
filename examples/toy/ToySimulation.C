@@ -38,7 +38,7 @@ void Create_Res_P(Long64_t Nevents){
 
 Double_t Resolution_P(Double_t p,Int_t icache){
   auto ev=cache_ResP->get(icache);
-  auto result= static_cast<RooRealVar*>(ev->first())->getVal()*(0.5*p+0.5);
+  auto result= static_cast<RooRealVar*>(ev->first())->getVal()*(0.01*p); //default *(0.5*p+0.5)
   return result;// p+result > 0 ? result :-result;
 }
 
@@ -88,8 +88,8 @@ void Resolution_ThPhi(Double_t p,Double_t &th,Double_t &ph,Int_t icache){
     vals[ivar]=static_cast<RooRealVar*>(var)->getVal();
     ++ivar;
   }
-  ph+=vals[1]/TMath::Sin(th*TMath::DegToRad());//phase space dependence
-  th+=vals[0];
+  ph+=0.05*vals[1]/TMath::Sin(th*TMath::DegToRad());//phase space dependence
+  th+=0.05*vals[0];
   return;
 }
 
