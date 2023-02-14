@@ -5,15 +5,15 @@
 
 
   info.treeName = "rec_tree";
-  info.reconFile = "pip-data.root";
+  info.reconFile = "particleData/particle-data/pip-data.root";
   
   //what fraction of events in each file do you want to use?
   info.recFrac = 1;
 
   //truth name, generated name, reconstructed name, title, range
-  info.variables ={{"calcP","calcP","detP","#pi+ momentum",0,10},
-		   {"calcTheta","calcTheta","detTheta","#pi+ #theta",0,TMath::Pi()},
-		   {"calcPhi","calcPhi","detPhi","#pi+ #phi",-TMath::Pi(),TMath::Pi()}};
+  info.variables ={{"detP","detP","detP","#pi+ momentum",0,10},
+		   {"detTheta","detTheta","detTheta","#pi+ #theta",0,TMath::Pi()},
+		   {"detPhi","detPhi","detPhi","#pi+ #phi",-TMath::Pi(),TMath::Pi()}};
 
   //variable to flag if particle was reconstructed in this event
   info.acceptVar = "accepted_pip";

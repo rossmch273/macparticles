@@ -70,5 +70,10 @@ dataset*/
 
 #ignore these files
 /examples/toy/mass_plots
-setup.sh
+*.sh
+/examples/toy/fast_sim
+.vscode/
+*.png
+/examples/toy/model-comparison/models
+
 

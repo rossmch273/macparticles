@@ -3,7 +3,7 @@
     using namespace ROOT::RDF;
 
     //get data from root file and input into a dataframe
-    auto df = RDataFrame("tree", "toy_reaction.root");
+    auto df = RDataFrame("tree", "/home/ross-mcharg/cloned/directory/ross_macparticles/examples/toy/toy_reaction.root");
 
     //filter the database for the cases where both the pions are detected
     auto data = df.Filter("accepted_p==1 && accepted_pim==1");
@@ -61,27 +61,35 @@
     auto mass= [](ROOT::Math::PxPyPzEVector p){return p.mass();};
     auto mass_squared = [](ROOT::Math::PxPyPzEVector p){return p.M2();};
 
-    //define new dataframes with the functions above applied
-    auto pip_rec_data = Rec_data.Define("pip_4mom", calculate_4mom, {"pimRec_4mom","pRec_4mom"}); 
-    auto full_rec_data = pip_rec_data.Define("calcP",P,{"pip_4mom"}).Define("calcTheta", theta, {"pip_4mom"}).Define("calcPhi", phi, {"pip_4mom"}).Define("pipMass", mass, {"pip_4mom"}).Define("pipM2", mass_squared, {"pip_4mom"});
-    auto pip_tru_data = Tru_data.Define("pip_4mom", calculate_4mom, {"pimTru_4mom","pTru_4mom"});
-    auto full_tru_data = pip_tru_data.Define("calcP", P, {"pip_4mom"}).Define("calcTheta", theta, {"pip_4mom"}).Define("calcPhi", phi, {"pip_4mom"}).Define("pipMass", mass, {"pip_4mom"}).Define("pipM2", mass_squared, {"pip_4mom"}); 
+    //DEFINE new dataframes with the functions above applied
+    //auto pip_rec_data = Rec_data.Define("pip_4mom", calculate_4mom, {"pimRec_4mom","pRec_4mom"}); 
 
-    //define lambda function to apply to column of dataframe so that we can rename the columns in output
+    auto full_rec_data = Rec_data.Define("pip_4mom", calculate_4mom, {"pimRec_4mom","pRec_4mom"}).Define("calcP",P,{"pip_4mom"}).Define("calcTheta", theta, {"pip_4mom"}).
+                            Define("calcPhi", phi, {"pip_4mom"}).Define("pipMass", mass, {"pip_4mom"}).Define("pipM2", mass_squared, {"pip_4mom"});
+
+    //auto pip_tru_data = Tru_data.Define("pip_4mom", calculate_4mom, {"pimTru_4mom","pTru_4mom"});
+
+    auto full_tru_data = Tru_data.Define("pip_4mom", calculate_4mom, {"pimTru_4mom","pTru_4mom"}).Define("calcP", P, {"pip_4mom"}).Define("calcTheta", theta, {"pip_4mom"}).
+                            Define("calcPhi", phi, {"pip_4mom"}).Define("pipMass", mass, {"pip_4mom"}).Define("pipM2", mass_squared, {"pip_4mom"}); 
+
+    
+    //OUTPUT PIP VARIABLES TO TREE IN ROOT FILE
+
+    //Rename columns in dataframe before output to root file
     return_column = [](double value){return value;};
 
     auto reconstructed_data = full_rec_data.Define("detP", return_column, {"recon.pipP"}).Define("detTheta", return_column, {"recon.pipTheta"}).Define("detPhi", return_column, {"recon.pipPhi"}).Define("truP", return_column, {"truth.pipP"}).Define("truTheta", return_column, {"truth.pipTheta"}).Define("truPhi", return_column, {"truth.pipPhi"});
 
-    //OUTPUT PIP VARIABLES TO TREE IN ROOT FILE
     //Output the pip variables that were calculated using the reconstructed pion variables
     auto snapshotOptions = RSnapshotOptions();
     snapshotOptions.fMode = "RECREATE";
-    reconstructed_data.Snapshot("rec_tree","pip-data.root", {"truP", "truTheta", "truPhi","detP", "detTheta", "detPhi","calcP", "calcTheta", "calcPhi", "accepted_pip"},snapshotOptions);
+    reconstructed_data.Snapshot("rec_tree","particle-data/pip-data.root", {"truP", "truTheta", "truPhi","detP", "detTheta", "detPhi","calcP", "calcTheta", "calcPhi", "accepted_pip"},snapshotOptions);
 
     //Output the proton variables that were calculated using the truth pion variables to a different tree
     snapshotOptions.fMode = "UPDATE";
-    full_tru_data.Snapshot("tru_tree","pip-data.root", {"calcP", "calcTheta", "calcPhi", "accepted_pip"},snapshotOptions);
+    full_tru_data.Snapshot("tru_tree","particle-data/pip-data.root", {"calcP", "calcTheta", "calcPhi", "accepted_pip"},snapshotOptions);
 
+    //PLOTTING 
 
     //create and plot histograms of the masses
     auto Hispred_rec_mass = full_rec_data.Histo1D( TH1DModel{"recMass", "Calculated #pi+ Mass", 100, 0, 2},{"pipMass"});
@@ -90,9 +98,7 @@
     auto Hispred_rec_mass2 = full_rec_data.Histo1D( TH1DModel{"recMass2", "Calculated #pi+ M2", 100, -0.1, 0.1},{"pipM2"});
     auto Hispred_tru_mass2 = full_tru_data.Histo1D( TH1DModel{"truMass2", "Calculated #pi+ M2", 100, -0.1, 0.1},{"pipM2"});
 
-    //PLOT HISTOGRAMS
-
-    //Plot of pion mass 
+    //Plot of pip mass 
     TCanvas *c1 = new TCanvas();
     c1->SetTitle("comparison of masses");
 
@@ -118,7 +124,7 @@
 
     c1->Print("mass_plots/pip-mass.png");
 
-    //Plot of pion mass squared 
+    //Plot of pip M2
     TCanvas *c2 = new TCanvas();
     c2->SetTitle("Comparison of M2");
 
